@@ -1,6 +1,6 @@
 # Geo::E00
 # 
-# Perl class for dealing with E00 files.
+# Arc/Info Export (E00) parser.
 #
 #	Copyright (c) 2002 Tower Technologies s.r.l.
 #	All Rights Reserved
@@ -13,7 +13,7 @@ use Carp;
 use IO::File;
 use Data::Dumper;
 
-$Geo::E00::VERSION = '0.01';
+$Geo::E00::VERSION = '0.02';
 
 # Constructor
 sub new
@@ -51,27 +51,30 @@ sub parse
 
 	return undef unless defined $headline;
 
-	#print $headline;
+#	print STDERR $headline;
 
 	return undef unless $headline =~ m|^EXP\s+(\d+)\s+(.+)\s*$|;
 
 	$self->{'VERSION'} = $1;
 	$self->{'EXPFILE'} = $2;
 
+#	print STDERR "Version $self->{'VERSION'} , file $self->{'EXPFILE'}\n";
+
 	my $data = {};
 
 	while (my $line = $fh->getline)
 	{
-		if ($line =~ m|^([A-Z]{3})\s+(\d+)$|)
+		if ($line =~ m|^([A-Z]{3})\s+(\d+)|)
 		{
 			# Section start
 
 			my $section = $1;
 			my $param = $2;
 
-			#print "Got section: $section, $param\n";
+#			print STDERR "Got section: $section, $param\n";
 
-			$data->{'arc'} = $self->parse_arc($fh) if $section eq 'ARC';
+			$data->{'arc'} = $self->parse_arc($fh, $param) if $section eq 'ARC';
+			$data->{'lab'} = $self->parse_lab($fh, $param) if $section eq 'LAB';
 		}
 	}
 
@@ -104,7 +107,7 @@ sub parse_arc
 			
 			my @coords = ();
 
-			# print "NUM: $arc->{'cov-num'}, ID: $arc->{'cov-id'}, PAIRS: $arc->{'npoints'}\n"; 
+#			print STDERR "NUM: $arc->{'cov-num'}, ID: $arc->{'cov-id'}, PAIRS: $arc->{'npoints'}\n"; 
 
 			for (my $i = 0; $i < $arc->{'npoints'};)
 			{
@@ -118,7 +121,7 @@ sub parse_arc
 				{
 					push(@coords, $1, $2, $3, $4);
 
-#					print " got 2 pairs line\n";
+#					print STDERR " got 2 pairs line\n";
 					$i += 2;
 
 					next;
@@ -130,7 +133,7 @@ sub parse_arc
 				{
 					push(@coords, $1, $2);
 
-#					print " got 1 pair line\n";
+#					print STDERR " got 1 pair line\n";
 					$i += 1;
 
 					next;
@@ -152,10 +155,48 @@ sub parse_arc
 		Carp::croak "Unknown set line: $line";	
 	}
 		
-#	print Data::Dumper->Dump( [ \@sets ] );
+#	print STDERR Data::Dumper->Dump( [ \@sets ] );
 
-#	print "END ARC SECTION\n";
+#	print STDERR "END ARC SECTION\n";
 
+	return \@sets;
+}
+
+
+sub parse_lab
+{
+	my($self, $fh) = @_;
+
+	my @sets = ();
+
+	while (my $line = $fh->getline)
+	{
+		# Check for termination pattern
+		last if $line =~ m|^\s*-1\s+0|;
+
+		# Set header
+		if ($line =~ m|^\s*(\d+)\s+(\d+)\s+([\d\.+E]+)\s+([\d\.+E]+)|)
+		{
+			my $lab = {
+				'cov-id'	=> $1,
+				'poly-id'	=> $2,
+				'x'		=> $3,
+				'y'		=> $4,
+			};
+			
+			# Read and throw away the next line
+			$fh->getline;
+
+			# Store
+			push(@sets, $lab);
+
+			# Next set...
+			next;
+		}
+	
+		Carp::croak "Unknown set line: $line";	
+	}
+		
 	return \@sets;
 }
 

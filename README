@@ -4,11 +4,10 @@
 
   this is an alpha release of the Geo::E00 module.
 
-  The aim of this module is to allow the user to read (and
-  maybe write) E00 files.
+  The aim of this module is to allow the user to read
+  E00 files.
 
-  Version 0.01 supports reading of the ARC section
-  (the most important one) of an E00 file.
+  ARC and LAB sections are currently supported.
 
   No documentation is available right now, you can read
   the included test.pl program, which tries to convert

@@ -14,6 +14,7 @@ use Data::Dumper;
 	{
 		my $edata = $e->parse;
 
+#		print STDERR Data::Dumper->Dump( [ $edata ] );
 
 		my $arcsets = $edata->{'arc'};
 
@@ -59,7 +60,7 @@ use Data::Dumper;
 
 			print "$q\n"; 			
 
-#			print Data::Dumper->Dump( [ $set ] );
+#			print STDERR Data::Dumper->Dump( [ $set ] );
 		}
 	
 		print "COMMIT;\n";

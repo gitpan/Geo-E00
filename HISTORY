@@ -1,0 +1,9 @@
+
+20021024: 0.01
+
+	- Initial release
+
+20021030: 0.02
+
+	- Added Makefile.PL
+	- Added support for LAB section
