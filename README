@@ -7,9 +7,9 @@
   The aim of this module is to allow the user to read
   E00 files.
 
-  ARC and LAB sections are currently supported.
+  ARC, LAB, PAL, CNT, INFO sections are currently supported.
 
-  No documentation is available right now, you can read
+  Documentation is available right now, you can read
   the included test.pl program, which tries to convert
   an E00 file to set of SQL statements, to learn how it works.
 
@@ -22,4 +22,5 @@
   Happy hacking!
 
 	Alessandro Zummo <azummo dash e00perl at towertech dot it>
+
 
